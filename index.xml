@@ -6,8 +6,15 @@
     <description>Recent content on Pranav Buradkar</description>
     <generator>Hugo -- 0.148.1</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 17 Jul 2025 19:29:16 +0530</lastBuildDate>
+    <lastBuildDate>Thu, 21 Aug 2025 08:52:47 +0530</lastBuildDate>
     <atom:link href="https://pranavburadkar.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Simple Guide to GANs</title>
+      <link>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</link>
+      <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</guid>
+      <description>Understand the core concepts of GANs, how they work, and their applications in AI.</description>
+    </item>
     <item>
       <title>My First Post</title>
       <link>https://pranavburadkar.github.io/posts/my-first-post/</link>

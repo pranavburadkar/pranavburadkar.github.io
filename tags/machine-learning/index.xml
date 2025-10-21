@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Posts on Pranav Buradkar</title>
-    <link>https://pranavburadkar.github.io/posts/</link>
-    <description>Recent content in Posts on Pranav Buradkar</description>
+    <title>Machine Learning on Pranav Buradkar</title>
+    <link>https://pranavburadkar.github.io/tags/machine-learning/</link>
+    <description>Recent content in Machine Learning on Pranav Buradkar</description>
     <generator>Hugo -- 0.148.1</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 21 Aug 2025 08:52:47 +0530</lastBuildDate>
-    <atom:link href="https://pranavburadkar.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://pranavburadkar.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>A Simple Guide to GANs</title>
       <link>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</link>
       <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
       <guid>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</guid>
       <description>Understand the core concepts of GANs, how they work, and their applications in AI.</description>
-    </item>
-    <item>
-      <title>My First Post</title>
-      <link>https://pranavburadkar.github.io/posts/my-first-post/</link>
-      <pubDate>Thu, 17 Jul 2025 19:29:16 +0530</pubDate>
-      <guid>https://pranavburadkar.github.io/posts/my-first-post/</guid>
-      <description>&lt;h1 id=&#34;hello&#34;&gt;Hello!&lt;/h1&gt;
-&lt;p&gt;This is the first test post!!!&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
