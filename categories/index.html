@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
+<html lang="en" dir="auto" data-theme="auto">
 
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,9 +8,9 @@
 <title>Categories | Pranav Buradkar</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<meta name="author" content="">
+<meta name="author" content="Pranav Buradkar">
 <link rel="canonical" href="https://pranavburadkar.github.io/categories/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.01de0cf7a606abfce8ed6089ab89e1538996376aac8ff05d3c7d2340f377b07c.css" integrity="sha256-Ad4M96YGq/zo7WCJq4nhU4mWN2qsj/BdPH0jQPN3sHw=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://pranavburadkar.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://pranavburadkar.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://pranavburadkar.github.io/favicon-32x32.png">
@@ -18,7 +18,7 @@
 <link rel="mask-icon" href="https://pranavburadkar.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://pranavburadkar.github.io/categories/index.xml">
+<link rel="alternate" type="application/rss+xml" href="https://pranavburadkar.github.io/categories/index.xml" title="rss">
 <link rel="alternate" hreflang="en" href="https://pranavburadkar.github.io/categories/">
 <noscript>
     <style>
@@ -40,23 +40,58 @@
                 --code-block-bg: rgb(46, 46, 51);
                 --code-bg: rgb(55, 56, 62);
                 --border: rgb(51, 51, 51);
+                color-scheme: dark;
             }
 
             .list {
                 background: var(--theme);
             }
 
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
+            .toc {
+                background: var(--entry);
             }
+        }
 
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
             }
         }
 
     </style>
-</noscript><meta property="og:url" content="https://pranavburadkar.github.io/categories/">
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const mermaidBlocks = document.querySelectorAll('.language-mermaid');
+    mermaidBlocks.forEach((block, index) => {
+      
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      
+      
+      const pre = block.parentNode;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    
+    mermaid.run();
+  });
+</script>
+<meta property="og:url" content="https://pranavburadkar.github.io/categories/">
   <meta property="og:site_name" content="Pranav Buradkar">
   <meta property="og:title" content="Categories">
   <meta property="og:locale" content="en-us">
@@ -66,20 +101,8 @@
 <meta name="twitter:description" content="">
 
 </head>
-
 <body class="list" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
+    <header class="header">
     <nav class="nav">
         <div class="logo">
             <a href="https://pranavburadkar.github.io/" accesskey="h" title="Pranav Buradkar (Alt + H)">Pranav Buradkar</a>
@@ -113,6 +136,11 @@
                 </a>
             </li>
             <li>
+                <a href="https://pranavburadkar.github.io/projects/" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://pranavburadkar.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
                     <span>Search</span>
                 </a>
@@ -137,13 +165,16 @@
 
 <ul class="terms-tags">
     <li>
-        <a href="https://pranavburadkar.github.io/categories/technology/">Technology <sup><strong><sup>1</sup></strong></sup> </a>
+        <a href="https://pranavburadkar.github.io/categories/projects/">Projects <sup><strong><sup>2</sup></strong></sup> </a>
+    </li>
+    <li>
+        <a href="https://pranavburadkar.github.io/categories/technology/">Technology <sup><strong><sup>7</sup></strong></sup> </a>
     </li>
 </ul>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2025 <a href="https://pranavburadkar.github.io/">Pranav Buradkar</a></span> · 
+        <span>&copy; 2026 <a href="https://pranavburadkar.github.io/">Pranav Buradkar</a></span> · 
 
     <span>
         Powered by
@@ -158,9 +189,14 @@
 </a>
 
 <script>
-    let menu = document.getElementById('menu')
+    let menu = document.getElementById('menu');
     if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
         menu.onscroll = function () {
             localStorage.setItem("menu-scroll-position", menu.scrollLeft);
         }
@@ -201,11 +237,12 @@
 </script>
 <script>
     document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
             localStorage.setItem("pref-theme", 'light');
         } else {
-            document.body.classList.add('dark');
+            html.dataset.theme = 'dark';
             localStorage.setItem("pref-theme", 'dark');
         }
     })

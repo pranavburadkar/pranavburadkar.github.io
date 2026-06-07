@@ -4,10 +4,17 @@
     <title>Machine Learning on Pranav Buradkar</title>
     <link>https://pranavburadkar.github.io/tags/machine-learning/</link>
     <description>Recent content in Machine Learning on Pranav Buradkar</description>
-    <generator>Hugo -- 0.148.1</generator>
+    <generator>Hugo -- 0.162.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 21 Aug 2025 08:52:47 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 30 Nov 2025 10:00:00 +0530</lastBuildDate>
     <atom:link href="https://pranavburadkar.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Simple Guide to Variational Autoencoders (VAEs)</title>
+      <link>https://pranavburadkar.github.io/posts/simple-guide-to-vae/</link>
+      <pubDate>Sun, 30 Nov 2025 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/simple-guide-to-vae/</guid>
+      <description>Dive into the world of VAEs, understand how they generate new data, and explore their applications in AI.</description>
+    </item>
     <item>
       <title>A Simple Guide to GANs</title>
       <link>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</link>

@@ -4,22 +4,148 @@
     <title>Tags on Pranav Buradkar</title>
     <link>https://pranavburadkar.github.io/tags/</link>
     <description>Recent content in Tags on Pranav Buradkar</description>
-    <generator>Hugo -- 0.148.1</generator>
+    <generator>Hugo -- 0.162.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 21 Aug 2025 08:52:47 +0530</lastBuildDate>
+    <lastBuildDate>Sun, 07 Jun 2026 11:00:00 +0530</lastBuildDate>
     <atom:link href="https://pranavburadkar.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>AI</title>
       <link>https://pranavburadkar.github.io/tags/ai/</link>
-      <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
+      <pubDate>Sun, 07 Jun 2026 11:00:00 +0530</pubDate>
       <guid>https://pranavburadkar.github.io/tags/ai/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LLMs</title>
+      <link>https://pranavburadkar.github.io/tags/llms/</link>
+      <pubDate>Sun, 07 Jun 2026 11:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/llms/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>NLP</title>
+      <link>https://pranavburadkar.github.io/tags/nlp/</link>
+      <pubDate>Sun, 07 Jun 2026 11:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/nlp/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>System Architecture</title>
+      <link>https://pranavburadkar.github.io/tags/system-architecture/</link>
+      <pubDate>Sun, 07 Jun 2026 11:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/system-architecture/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vector Search</title>
+      <link>https://pranavburadkar.github.io/tags/vector-search/</link>
+      <pubDate>Sun, 07 Jun 2026 11:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/vector-search/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Inference</title>
+      <link>https://pranavburadkar.github.io/tags/inference/</link>
+      <pubDate>Sun, 10 May 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/inference/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Optimization</title>
+      <link>https://pranavburadkar.github.io/tags/optimization/</link>
+      <pubDate>Sun, 10 May 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/optimization/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Quantization</title>
+      <link>https://pranavburadkar.github.io/tags/quantization/</link>
+      <pubDate>Sun, 10 May 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/quantization/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Fine-Tuning</title>
+      <link>https://pranavburadkar.github.io/tags/fine-tuning/</link>
+      <pubDate>Sun, 12 Apr 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/fine-tuning/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hugging Face</title>
+      <link>https://pranavburadkar.github.io/tags/hugging-face/</link>
+      <pubDate>Sun, 12 Apr 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/hugging-face/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Llama 3</title>
+      <link>https://pranavburadkar.github.io/tags/llama-3/</link>
+      <pubDate>Sun, 12 Apr 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/llama-3/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LoRA</title>
+      <link>https://pranavburadkar.github.io/tags/lora/</link>
+      <pubDate>Sun, 12 Apr 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/lora/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>PEFT</title>
+      <link>https://pranavburadkar.github.io/tags/peft/</link>
+      <pubDate>Sun, 12 Apr 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/peft/</guid>
       <description></description>
     </item>
     <item>
       <title>Deep Learning</title>
       <link>https://pranavburadkar.github.io/tags/deep-learning/</link>
-      <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
+      <pubDate>Fri, 20 Mar 2026 10:00:00 +0530</pubDate>
       <guid>https://pranavburadkar.github.io/tags/deep-learning/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Computer Vision</title>
+      <link>https://pranavburadkar.github.io/tags/computer-vision/</link>
+      <pubDate>Mon, 15 Dec 2025 10:00:00 +0000</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/computer-vision/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Transformers</title>
+      <link>https://pranavburadkar.github.io/tags/transformers/</link>
+      <pubDate>Mon, 15 Dec 2025 10:00:00 +0000</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/transformers/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Generative Models</title>
+      <link>https://pranavburadkar.github.io/tags/generative-models/</link>
+      <pubDate>Sun, 30 Nov 2025 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/generative-models/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Machine Learning</title>
+      <link>https://pranavburadkar.github.io/tags/machine-learning/</link>
+      <pubDate>Sun, 30 Nov 2025 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/machine-learning/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>VAEs</title>
+      <link>https://pranavburadkar.github.io/tags/vaes/</link>
+      <pubDate>Sun, 30 Nov 2025 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/vaes/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LLM</title>
+      <link>https://pranavburadkar.github.io/tags/llm/</link>
+      <pubDate>Thu, 20 Nov 2025 10:00:00 +0000</pubDate>
+      <guid>https://pranavburadkar.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
@@ -27,13 +153,6 @@
       <link>https://pranavburadkar.github.io/tags/gans/</link>
       <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
       <guid>https://pranavburadkar.github.io/tags/gans/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Machine Learning</title>
-      <link>https://pranavburadkar.github.io/tags/machine-learning/</link>
-      <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
-      <guid>https://pranavburadkar.github.io/tags/machine-learning/</guid>
       <description></description>
     </item>
   </channel>

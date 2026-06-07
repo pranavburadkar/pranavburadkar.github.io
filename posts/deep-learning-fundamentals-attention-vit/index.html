@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers | Pranav Buradkar</title>
+<meta name="keywords" content="AI, Deep Learning, Transformers, Computer Vision">
+<meta name="description" content="Breaking down the mechanics of Self-Attention and understanding how the Transformer architecture leaped from Natural Language Processing to dominating Computer Vision with ViTs.">
+<meta name="author" content="Pranav Buradkar">
+<link rel="canonical" href="https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.01de0cf7a606abfce8ed6089ab89e1538996376aac8ff05d3c7d2340f377b07c.css" integrity="sha256-Ad4M96YGq/zo7WCJq4nhU4mWN2qsj/BdPH0jQPN3sHw=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://pranavburadkar.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://pranavburadkar.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://pranavburadkar.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://pranavburadkar.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://pranavburadkar.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const mermaidBlocks = document.querySelectorAll('.language-mermaid');
+    mermaidBlocks.forEach((block, index) => {
+      
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      
+      
+      const pre = block.parentNode;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    
+    mermaid.run();
+  });
+</script>
+<meta property="og:url" content="https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/">
+  <meta property="og:site_name" content="Pranav Buradkar">
+  <meta property="og:title" content="Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers">
+  <meta property="og:description" content="Breaking down the mechanics of Self-Attention and understanding how the Transformer architecture leaped from Natural Language Processing to dominating Computer Vision with ViTs.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-12-15T10:00:00+00:00">
+    <meta property="article:modified_time" content="2025-12-15T10:00:00+00:00">
+    <meta property="article:tag" content="AI">
+    <meta property="article:tag" content="Deep Learning">
+    <meta property="article:tag" content="Transformers">
+    <meta property="article:tag" content="Computer Vision">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/understanding-llm-optimization/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/fine-tune-llama-3-lora/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/understanding-lora-fine-tuning/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/simple-guide-to-vae/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/beginners-guide-to-llm-quantization/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/simple-guide-to-gans/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers">
+<meta name="twitter:description" content="Breaking down the mechanics of Self-Attention and understanding how the Transformer architecture leaped from Natural Language Processing to dominating Computer Vision with ViTs.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://pranavburadkar.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers",
+      "item": "https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers",
+  "name": "Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers",
+  "description": "Breaking down the mechanics of Self-Attention and understanding how the Transformer architecture leaped from Natural Language Processing to dominating Computer Vision with ViTs.",
+  "keywords": [
+    "AI", "Deep Learning", "Transformers", "Computer Vision"
+  ],
+  "articleBody": "If you’ve been following the AI space over the last several years, you already know that Transformers run the world. They are the “T” in GPT, the engine beneath massive language models, and increasingly, the state-of-the-art architecture for analyzing images and video.\nBut how does this architecture actually work? And how did a model originally designed to translate text end up dethroning Convolutional Neural Networks (CNNs) in computer vision?\nToday, we’re diving into the core of the Transformer—Self-Attention—and exploring how it was adapted to see the world via Vision Transformers (ViT).\nPart 1: Demystifying Self-Attention Before 2017, generating text largely relied on Recurrent Neural Networks (RNNs) and LSTMs. These processed text sequentially, word by word. The longer the sentence, the harder it was for the network to “remember” the beginning of the sentence by the time it reached the end.\nThe paper “Attention Is All You Need” threw out sequential processing entirely. Instead, it allowed the model to look at every word in a sentence simultaneously and determine which words were most highly related to each other, regardless of their distance. This is called Self-Attention.\nThe Library Analogy: Query, Key, and Value (Q, K, V) Self-Attention computes context using three vectors for every word: a Query ($Q$), a Key ($K$), and a Value ($V$).\nImagine you are at a library:\nQuery ($Q$): This is what you are looking for (e.g., “A book about neural networks”). Key ($K$): This is the title/tags on the spine of every book on the shelf (e.g., “Deep Learning Basics”). Value ($V$): This is the actual text inside the book. When a word (like “bank”) is processed, the model uses the Query of “bank” and compares it via a dot-product to the Keys of every other word in the sentence (like “river”, “water”, or “money”, “finance”). If the sentence is “I sat by the river bank,” the Keys for “river” and “water” will have a high similarity score with the Query for “bank”, heavily weighting their Values. This tells the model that in this context, “bank” means the side of a river, not a financial institution.\ngraph TD Input[Input Token / Word] --\u003e Q[Query Vector] Input --\u003e K[Key Vector] Input --\u003e V[Value Vector] Q --\u003e Dot[Dot Product: Q \u0026 K] K --\u003e Dot Dot --\u003e Scale[Scale \u0026 Softmax] Scale --\u003e|Attention Weights| Mult[Multiply with Values] V --\u003e Mult Mult --\u003e Output[Contextualized Output Token] style Input fill:#f9f,stroke:#333,stroke-width:2px style Output fill:#bfb,stroke:#333,stroke-width:2px Because this mechanism is purely matrix multiplication, it can be massively parallelized across GPUs, escaping the sequential bottleneck of old architectures!\nPart 2: Vision Transformers (ViT) Explained For years, Convolutional Neural Networks (CNNs) were the undisputed kings of Computer Vision. They work by sliding small grids (filters) over an image, gradually building up an understanding of edges, textures, and eventually complex shapes like faces.\nBut in 2020, researchers at Google Brain asked a radical question: What if we just treat an image exactly like a sentence?\nThus, the Vision Transformer (ViT) was born.\nHow ViT Works: Patches are the New Words A Transformer encoder expects a sequence of 1D tokens (like words). But an image is a 2D grid of pixels. To bridge this gap, ViT chops the image into a grid of non-overlapping patches—typically 16x16 pixels each.\nPatchify: The image is cut into distinct squares. Linear Embedding: Each patch is mathematically flattened into a 1D vector. Now, each patch acts exactly like a “word” in an NLP problem. Positional Encoding: Because Transformers process everything at once, they have no concept of space. The model needs to be told where each patch came from (e.g., “This patch is the top-left corner”). We add positional data to the vectors. Transformer Encoder: The sequence of patches is pushed through standard Self-Attention layers. The patches look at each other to construct a global understanding of the image. graph LR Img[Input Image] --\u003e Patches[Split into 16x16 Patches] Patches --\u003e Flatten[Flatten to 1D Vectors] Flatten --\u003e Pos[Add Positional Embeddings] Pos --\u003e Transform[Transformer EncoderSelf-Attention] Transform --\u003e ClassHead[Classification Head] ClassHead --\u003e Dog[Prediction: 'Dog'] style Img fill:#fcf6bd,stroke:#333 style Patches fill:#a2d2ff,stroke:#333 style Transform fill:#ffafcc,stroke:#333 Why ViTs are Taking Over CNNs have a strong inductive bias—they are explicitly designed to look for local pixel relationships (edges close to each other). This makes them great for training on smaller datasets.\nTransformers have almost no inductive bias. They don’t know that pixels next to each other are related. However, this lack of bias means that if you feed them massive amounts of data, they actually learn better, more complex global relationships than CNNs ever could.\nWhen trained on datasets with hundreds of millions of images, ViTs outperform state-of-the-art CNNs, requiring fewer computational resources to train at that massive scale.\nSummary The Transformer’s ability to contextualize everything everywhere all at once—first words in a paragraph, now patches in an image—has unified deep learning in a way few saw coming. Whether we are chatting with an LLM or generating art, under the hood, it’s all just Queries, Keys, and Values doing the heavy lifting.\n",
+  "wordCount" : "832",
+  "inLanguage": "en",
+  "datePublished": "2025-12-15T10:00:00Z",
+  "dateModified": "2025-12-15T10:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Pranav Buradkar"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Pranav Buradkar",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pranavburadkar.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://pranavburadkar.github.io/" accesskey="h" title="Pranav Buradkar (Alt + H)">Pranav Buradkar</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://pranavburadkar.github.io/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/projects/" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers
+    </h1>
+    <div class="post-meta"><span title='2025-12-15 10:00:00 +0000 +0000'>December 15, 2025</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>Pranav Buradkar</span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>If you&rsquo;ve been following the AI space over the last several years, you already know that <strong>Transformers</strong> run the world. They are the &ldquo;T&rdquo; in GPT, the engine beneath massive language models, and increasingly, the state-of-the-art architecture for analyzing images and video.</p>
+<p>But how does this architecture actually work? And how did a model originally designed to translate text end up dethroning Convolutional Neural Networks (CNNs) in computer vision?</p>
+<p>Today, we&rsquo;re diving into the core of the Transformer—<strong>Self-Attention</strong>—and exploring how it was adapted to see the world via <strong>Vision Transformers (ViT)</strong>.</p>
+<hr>
+<h2 id="part-1-demystifying-self-attention">Part 1: Demystifying Self-Attention<a hidden class="anchor" aria-hidden="true" href="#part-1-demystifying-self-attention">#</a></h2>
+<p>Before 2017, generating text largely relied on Recurrent Neural Networks (RNNs) and LSTMs. These processed text sequentially, word by word. The longer the sentence, the harder it was for the network to &ldquo;remember&rdquo; the beginning of the sentence by the time it reached the end.</p>
+<p>The paper <em>&ldquo;Attention Is All You Need&rdquo;</em> threw out sequential processing entirely. Instead, it allowed the model to look at <strong>every word in a sentence simultaneously</strong> and determine which words were most highly related to each other, regardless of their distance. This is called <strong>Self-Attention</strong>.</p>
+<h3 id="the-library-analogy-query-key-and-value-q-k-v">The Library Analogy: Query, Key, and Value (Q, K, V)<a hidden class="anchor" aria-hidden="true" href="#the-library-analogy-query-key-and-value-q-k-v">#</a></h3>
+<p>Self-Attention computes context using three vectors for every word: a <strong>Query</strong> ($Q$), a <strong>Key</strong> ($K$), and a <strong>Value</strong> ($V$).</p>
+<p>Imagine you are at a library:</p>
+<ol>
+<li><strong>Query ($Q$):</strong> This is what you are looking for (e.g., &ldquo;A book about neural networks&rdquo;).</li>
+<li><strong>Key ($K$):</strong> This is the title/tags on the spine of every book on the shelf (e.g., &ldquo;Deep Learning Basics&rdquo;).</li>
+<li><strong>Value ($V$):</strong> This is the actual text inside the book.</li>
+</ol>
+<p>When a word (like &ldquo;bank&rdquo;) is processed, the model uses the <strong>Query</strong> of &ldquo;bank&rdquo; and compares it via a dot-product to the <strong>Keys</strong> of every other word in the sentence (like &ldquo;river&rdquo;, &ldquo;water&rdquo;, or &ldquo;money&rdquo;, &ldquo;finance&rdquo;). If the sentence is &ldquo;I sat by the river bank,&rdquo; the Keys for &ldquo;river&rdquo; and &ldquo;water&rdquo; will have a high similarity score with the Query for &ldquo;bank&rdquo;, heavily weighting their <strong>Values</strong>. This tells the model that in this context, &ldquo;bank&rdquo; means the side of a river, not a financial institution.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+    Input[Input Token / Word] --&gt; Q[Query Vector]
+    Input --&gt; K[Key Vector]
+    Input --&gt; V[Value Vector]
+    
+    Q --&gt; Dot[Dot Product: Q &amp; K]
+    K --&gt; Dot
+    
+    Dot --&gt; Scale[Scale &amp; Softmax]
+    
+    Scale --&gt;|Attention Weights| Mult[Multiply with Values]
+    V --&gt; Mult
+    
+    Mult --&gt; Output[Contextualized Output Token]
+    
+    style Input fill:#f9f,stroke:#333,stroke-width:2px
+    style Output fill:#bfb,stroke:#333,stroke-width:2px
+</code></pre><p>Because this mechanism is purely matrix multiplication, it can be massively parallelized across GPUs, escaping the sequential bottleneck of old architectures!</p>
+<hr>
+<h2 id="part-2-vision-transformers-vit-explained">Part 2: Vision Transformers (ViT) Explained<a hidden class="anchor" aria-hidden="true" href="#part-2-vision-transformers-vit-explained">#</a></h2>
+<p>For years, Convolutional Neural Networks (CNNs) were the undisputed kings of Computer Vision. They work by sliding small grids (filters) over an image, gradually building up an understanding of edges, textures, and eventually complex shapes like faces.</p>
+<p>But in 2020, researchers at Google Brain asked a radical question: <em>What if we just treat an image exactly like a sentence?</em></p>
+<p>Thus, the <strong>Vision Transformer (ViT)</strong> was born.</p>
+<h3 id="how-vit-works-patches-are-the-new-words">How ViT Works: Patches are the New Words<a hidden class="anchor" aria-hidden="true" href="#how-vit-works-patches-are-the-new-words">#</a></h3>
+<p>A Transformer encoder expects a sequence of 1D tokens (like words). But an image is a 2D grid of pixels. To bridge this gap, ViT chops the image into a grid of non-overlapping patches—typically 16x16 pixels each.</p>
+<ol>
+<li><strong>Patchify:</strong> The image is cut into distinct squares.</li>
+<li><strong>Linear Embedding:</strong> Each patch is mathematically flattened into a 1D vector. Now, each patch acts exactly like a &ldquo;word&rdquo; in an NLP problem.</li>
+<li><strong>Positional Encoding:</strong> Because Transformers process everything at once, they have no concept of space. The model needs to be told <em>where</em> each patch came from (e.g., &ldquo;This patch is the top-left corner&rdquo;). We add positional data to the vectors.</li>
+<li><strong>Transformer Encoder:</strong> The sequence of patches is pushed through standard Self-Attention layers. The patches look at each other to construct a global understanding of the image.</li>
+</ol>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph LR
+    Img[Input Image] --&gt; Patches[Split into 16x16 Patches]
+    Patches --&gt; Flatten[Flatten to 1D Vectors]
+    Flatten --&gt; Pos[Add Positional Embeddings]
+    
+    Pos --&gt; Transform[Transformer Encoder&lt;br/&gt;Self-Attention]
+    
+    Transform --&gt; ClassHead[Classification Head]
+    ClassHead --&gt; Dog[Prediction: &#39;Dog&#39;]
+    
+    style Img fill:#fcf6bd,stroke:#333
+    style Patches fill:#a2d2ff,stroke:#333
+    style Transform fill:#ffafcc,stroke:#333
+</code></pre><h3 id="why-vits-are-taking-over">Why ViTs are Taking Over<a hidden class="anchor" aria-hidden="true" href="#why-vits-are-taking-over">#</a></h3>
+<p>CNNs have a strong <strong>inductive bias</strong>—they are explicitly designed to look for local pixel relationships (edges close to each other). This makes them great for training on smaller datasets.</p>
+<p>Transformers have almost <em>no</em> inductive bias. They don&rsquo;t know that pixels next to each other are related. However, this lack of bias means that if you feed them <strong>massive amounts of data</strong>, they actually learn better, more complex global relationships than CNNs ever could.</p>
+<p>When trained on datasets with hundreds of millions of images, ViTs outperform state-of-the-art CNNs, requiring fewer computational resources to train at that massive scale.</p>
+<h2 id="summary">Summary<a hidden class="anchor" aria-hidden="true" href="#summary">#</a></h2>
+<p>The Transformer&rsquo;s ability to contextualize everything everywhere all at once—first words in a paragraph, now patches in an image—has unified deep learning in a way few saw coming. Whether we are chatting with an LLM or generating art, under the hood, it&rsquo;s all just Queries, Keys, and Values doing the heavy lifting.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://pranavburadkar.github.io/tags/ai/">AI</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/deep-learning/">Deep Learning</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/transformers/">Transformers</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/computer-vision/">Computer Vision</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://pranavburadkar.github.io/">Pranav Buradkar</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>AI Guides on Pranav Buradkar</title>
+    <link>https://pranavburadkar.github.io/series/ai-guides/</link>
+    <description>Recent content in AI Guides on Pranav Buradkar</description>
+    <generator>Hugo -- 0.162.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 10 May 2026 10:00:00 +0530</lastBuildDate>
+    <atom:link href="https://pranavburadkar.github.io/series/ai-guides/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Simple Guide to LLM Serving: Quantization, KV Caching, and Continuous Batching</title>
+      <link>https://pranavburadkar.github.io/posts/understanding-llm-optimization/</link>
+      <pubDate>Sun, 10 May 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/understanding-llm-optimization/</guid>
+      <description>Dive into the three key techniques that make serving large language models (LLMs) fast, cheap, and memory-efficient.</description>
+    </item>
+    <item>
+      <title>How to Fine-Tune Llama 3 on Your Own Data: A Practical Guide</title>
+      <link>https://pranavburadkar.github.io/posts/fine-tune-llama-3-lora/</link>
+      <pubDate>Sun, 12 Apr 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/fine-tune-llama-3-lora/</guid>
+      <description>Step-by-step practical guide to fine-tuning Meta&amp;#39;s Llama 3 using PyTorch, Hugging Face Transformers, and PEFT/LoRA on a custom dataset.</description>
+    </item>
+    <item>
+      <title>A Simple Guide to LoRA (Low-Rank Adaptation)</title>
+      <link>https://pranavburadkar.github.io/posts/understanding-lora-fine-tuning/</link>
+      <pubDate>Fri, 20 Mar 2026 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/understanding-lora-fine-tuning/</guid>
+      <description>Learn how Low-Rank Adaptation (LoRA) makes fine-tuning massive LLMs and generative models incredibly efficient.</description>
+    </item>
+    <item>
+      <title>Deep Learning Fundamentals: Attention Mechanisms and Vision Transformers</title>
+      <link>https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/</link>
+      <pubDate>Mon, 15 Dec 2025 10:00:00 +0000</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/</guid>
+      <description>Breaking down the mechanics of Self-Attention and understanding how the Transformer architecture leaped from Natural Language Processing to dominating Computer Vision with ViTs.</description>
+    </item>
+    <item>
+      <title>A Simple Guide to Variational Autoencoders (VAEs)</title>
+      <link>https://pranavburadkar.github.io/posts/simple-guide-to-vae/</link>
+      <pubDate>Sun, 30 Nov 2025 10:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/simple-guide-to-vae/</guid>
+      <description>Dive into the world of VAEs, understand how they generate new data, and explore their applications in AI.</description>
+    </item>
+    <item>
+      <title>A Beginner&#39;s Guide to LLM Quantization: GGUF, GPTQ, and AWQ</title>
+      <link>https://pranavburadkar.github.io/posts/beginners-guide-to-llm-quantization/</link>
+      <pubDate>Thu, 20 Nov 2025 10:00:00 +0000</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/beginners-guide-to-llm-quantization/</guid>
+      <description>Expanding on LLM optimization by explaining how massive models are compressed using techniques like GGUF, GPTQ, and AWQ to run on consumer hardware.</description>
+    </item>
+    <item>
+      <title>A Simple Guide to GANs</title>
+      <link>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</link>
+      <pubDate>Thu, 21 Aug 2025 08:52:47 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/simple-guide-to-gans/</guid>
+      <description>Understand the core concepts of GANs, how they work, and their applications in AI.</description>
+    </item>
+  </channel>
+</rss>

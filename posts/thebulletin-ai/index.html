@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator | Pranav Buradkar</title>
+<meta name="keywords" content="AI, LLMs, Vector Search, System Architecture, NLP">
+<meta name="description" content="An in-depth look at how we built an autonomous news ecosystem that scrapes, clusters, summarizes, and evaluates news bias and truthfulness using Llama 3.3 and pgvector.">
+<meta name="author" content="Pranav Buradkar">
+<link rel="canonical" href="https://pranavburadkar.github.io/posts/thebulletin-ai/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.01de0cf7a606abfce8ed6089ab89e1538996376aac8ff05d3c7d2340f377b07c.css" integrity="sha256-Ad4M96YGq/zo7WCJq4nhU4mWN2qsj/BdPH0jQPN3sHw=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://pranavburadkar.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://pranavburadkar.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://pranavburadkar.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://pranavburadkar.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://pranavburadkar.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://pranavburadkar.github.io/posts/thebulletin-ai/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const mermaidBlocks = document.querySelectorAll('.language-mermaid');
+    mermaidBlocks.forEach((block, index) => {
+      
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      
+      
+      const pre = block.parentNode;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    
+    mermaid.run();
+  });
+</script>
+<meta property="og:url" content="https://pranavburadkar.github.io/posts/thebulletin-ai/">
+  <meta property="og:site_name" content="Pranav Buradkar">
+  <meta property="og:title" content="Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator">
+  <meta property="og:description" content="An in-depth look at how we built an autonomous news ecosystem that scrapes, clusters, summarizes, and evaluates news bias and truthfulness using Llama 3.3 and pgvector.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-07T11:00:00+05:30">
+    <meta property="article:modified_time" content="2026-06-07T11:00:00+05:30">
+    <meta property="article:tag" content="AI">
+    <meta property="article:tag" content="LLMs">
+    <meta property="article:tag" content="Vector Search">
+    <meta property="article:tag" content="System Architecture">
+    <meta property="article:tag" content="NLP">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/projects/a/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator">
+<meta name="twitter:description" content="An in-depth look at how we built an autonomous news ecosystem that scrapes, clusters, summarizes, and evaluates news bias and truthfulness using Llama 3.3 and pgvector.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://pranavburadkar.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator",
+      "item": "https://pranavburadkar.github.io/posts/thebulletin-ai/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator",
+  "name": "Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator",
+  "description": "An in-depth look at how we built an autonomous news ecosystem that scrapes, clusters, summarizes, and evaluates news bias and truthfulness using Llama 3.3 and pgvector.",
+  "keywords": [
+    "AI", "LLMs", "Vector Search", "System Architecture", "NLP"
+  ],
+  "articleBody": "In the modern digital landscape, staying informed is harder than ever. It’s not because of a lack of information, but an abundance of it—specifically, the polarization, sensationalism, and sheer volume of duplicate reporting. Traditional aggregators simply fetch headlines and list them side-by-side.\nTo solve this, I built TheBulletin AI (historically codenamed Veritas Aggregator): a fully autonomous, bias-aware news aggregator. Instead of just organizing links, it acts as an automated editorial room that ingests articles, semantically clusters them into single events, writes objective summaries, and evaluates the political bias and credibility of the coverage.\nIn this post, we’ll dive deep into the architecture of TheBulletin AI, with a core focus on how AI powers the intelligence of the system.\nThe System Architecture: From RSS to Screen The system follows a decoupled, contract-first, producer-consumer pattern designed to keep operational costs low while remaining highly scalable:\ngraph TD RSS([\"External RSS Feeds\"]) --\u003e|Polls| SC[\"news-scrapers-service\\nPython / Trafilatura\"] SC --\u003e|Pushes Raw Articles| RS[(\"Redis Stream\\narticle.ingested\")] RS --\u003e|Pops Articles| AW[\"news-ai-worker\\nPython / SQLAlchemy\"] AW \u003c--\u003e|\"Inference API\\n(Local Ollama / Groq)\"| LLM[\"LLM \u0026 Embeddings\\nLlama 3.3 / BGE-M3\"] AW --\u003e|Writes Enriched Data| DB[(\"Supabase PostgreSQL\\nwith pgvector\")] MA[\"news-mobile-app\\nFlutter Client\"] --\u003e|Reads News| GW[\"news-api-gateway\\nFastAPI / Python\"] GW \u003c--\u003e|SQL/Admin Ops| DB news-scrapers-service: Polls major Indian news RSS feeds, extracts the raw main text using trafilatura (stripping ads and HTML noise), and pushes a schema-validated article payload to a Redis stream. news-ai-worker: Consumes raw articles from Redis, coordinates with LLMs for semantic clustering and metadata enrichment, and saves them to PostgreSQL. news-api-gateway: A lightweight, highly concurrent FastAPI gateway that serves static endpoints cached at the Cloudflare CDN edge. news-mobile-app: A cross-platform Flutter application providing users with a clean, instant-booting offline-first interface. How AI Powers the Brain The heart of TheBulletin AI lies in the news-ai-worker. This service operates as an inference-agnostic pipeline that coordinates vector search models and Large Language Models to enrich raw incoming data.\nHere are the two core AI pillars that drive the platform:\n1. Semantic Clustering (Using BGE-M3 Embeddings + pgvector) When a new article is scraped, the first challenge is deduplication and grouping. If ten different outlets write about the same press release, we shouldn’t show the user ten separate headlines.\nTraditional keyword-based clustering breaks down when outlets use drastically different headlines:\nOutlet A: “Govt slashes corporate tax rates to boost investment.” Outlet B: “New tax reforms draw criticism from opposition leaders.” To group these together, TheBulletin AI uses semantic clustering:\nWhen an article is processed, we generate an embedding text string combining its title and a brief summary. We call a vector embedding model (BGE-M3 in local dev) to represent this text as a 768-dimensional vector. We run a cosine similarity query in PostgreSQL using the pgvector extension against recent events: SELECT event_id, 1 - (embedding \u003c=\u003e :query_embedding) AS similarity FROM vector_embeddings ORDER BY similarity DESC LIMIT 1; If the similarity is above our threshold (typically 0.85), the worker automatically attaches the article to the existing NewsEvent cluster. If no match is found, it creates a brand-new event cluster and saves the new vector embedding to the database. This guarantees that different angles of the same story are automatically unified under a single narrative timeline.\n2. Multi-Dimensional LLM Enrichment Once we have a news event, we need to extract intelligence from it. Instead of running multiple expensive API calls, we prompt an instruction-tuned LLM (like Llama 3.3 70B or Phi-3-mini) to perform three analysis tasks in a single pass using structured JSON mode.\nThe system system prompt enforces a strict contract:\n{ \"summary\": \"2-3 sentence objective summary text\", \"bias\": { \"leaning\": \"left|center|right|mixed|unknown\", \"confidence\": 0.0-1.0, \"notes\": [\"evidence of slant or loaded language\"] }, \"truth\": { \"score\": 0.0-1.0, \"corroboration_count\": 0, \"discrepancy_flags\": [\"list of factual contradictions\"], \"primary_wire_service\": \"reuters|afp|pti|null\" } } Let’s break down these three aspects of the enrichment bundle:\nA. Objective Summarization The LLM extracts factual core points from the raw text (truncated to 2,000 characters for latency and speed) to synthesize a neutral, jargon-free summary. By instructing the model to focus purely on the common denominator facts, we prevent the summary from carrying over the emotional slants of the individual outlets.\nB. Bias Analysis Polarized journalism often uses loaded adjectives, selective reporting, or opinionated framing. The model reviews the phrasing, compares it to neutral standards, and labels the political leaning as left, center, right, or mixed along with a confidence rating and brief supporting notes.\nFor instance, if an article uses loaded emotional phrases to describe a legislative bill, the AI notes that phrasing, lowering the credibility or designating the leaning accordingly.\nC. Truth-Verification Scoring Trust is paramount. The LLM estimates a factual credibility score between 0.0 and 1.0. It calculates this based on:\nCorroboration: Are other outlets reporting the same facts? Discrepancy Flags: Are there direct contradictions (e.g., conflicting casualty counts, dates, or statements)? Source Quality: Is the article citing reputable primary wire services like PTI, Reuters, or Associated Press? Balancing Local GPU Power \u0026 Cloud Economy Deploying deep learning models can get incredibly expensive. TheBulletin AI is engineered with a 0-Investment Strategy in local development, transitioning to a highly cost-optimized setup for production:\nLocal Dev (Zero-Cost): We run a local Ubuntu server equipped with an NVIDIA RTX 5090. The backend wires directly to a local Ollama instance running phi3:mini (for chat completions) and bge-m3 (for embeddings). This allows unlimited, fast, and free testing. Production MVP: Instead of keeping an expensive GPU server powered on 24/7 in the cloud, the worker switches to serverless inference endpoints like Groq or Together AI using the exact same OpenAI-compatible API client. We only pay a fraction of a cent per million tokens, scaling down to absolute zero when there are no new articles. Safe-guarding AI Outputs: Human-in-the-Loop AI is not perfect. It can hallucinate, misinterpret satire, or make mistakes in bias analysis. To ensure the integrity of the platform, the architecture enforces two safety layers:\n1. Global Traceability (Correlation IDs) Every raw article is assigned a UUID v4 trace_id the moment it enters the scraper service. This trace_id is propagated through the Redis stream envelope, sent with LLM API headers, and persisted in the database. If an editor flags an incorrect summary, we can grep the JSON logs using that single trace_id to trace the entire pipeline’s state and find exactly where the prompt fell short.\n2. Database-Level Coalesced Overrides We don’t want to blindly trust the AI, nor do we want to overwrite its audit trail. The database schema supports admin_truth_score_override and admin_bias_override fields.\nWhen the API Gateway queries a news event to serve to the Flutter mobile app, it uses a SQL coalesce strategy:\nSELECT event_id, COALESCE(admin_truth_score_override, ai_truth_score) AS truth_score, COALESCE(admin_bias_override, ai_bias_leaning) AS bias_leaning FROM news_events; If an administrator manually overrides a score in the Retool-based Admin portal, the app instantly displays the verified human score, while the original AI-generated evaluation is preserved untouched for audit and prompt tuning.\nThe Road Ahead By leveraging vector embeddings for clustering and LLMs for bias/truth scoring, TheBulletin AI shifts the news reader’s role from sifting through noise to analyzing objective narratives.\nNext on the roadmap is expanding the semantic search window to group historical events into macro-narratives (e.g., linking separate policy reform articles over a six-month period) to show how coverage changes over time.\n",
+  "wordCount" : "1198",
+  "inLanguage": "en",
+  "datePublished": "2026-06-07T11:00:00+05:30",
+  "dateModified": "2026-06-07T11:00:00+05:30",
+  "author":{
+    "@type": "Person",
+    "name": "Pranav Buradkar"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://pranavburadkar.github.io/posts/thebulletin-ai/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Pranav Buradkar",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pranavburadkar.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://pranavburadkar.github.io/" accesskey="h" title="Pranav Buradkar (Alt + H)">Pranav Buradkar</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://pranavburadkar.github.io/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/projects/" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator
+    </h1>
+    <div class="post-description">
+      An in-depth look at how we built an autonomous news ecosystem that scrapes, clusters, summarizes, and evaluates news bias and truthfulness using Llama 3.3 and pgvector.
+    </div>
+    <div class="post-meta"><span title='2026-06-07 11:00:00 +0530 IST'>June 7, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>Pranav Buradkar</span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>In the modern digital landscape, staying informed is harder than ever. It’s not because of a lack of information, but an abundance of it—specifically, the polarization, sensationalism, and sheer volume of duplicate reporting. Traditional aggregators simply fetch headlines and list them side-by-side.</p>
+<p>To solve this, I built <strong>TheBulletin AI</strong> (historically codenamed <em>Veritas Aggregator</em>): a fully autonomous, bias-aware news aggregator. Instead of just organizing links, it acts as an automated editorial room that ingests articles, semantically clusters them into single events, writes objective summaries, and evaluates the political bias and credibility of the coverage.</p>
+<p>In this post, we’ll dive deep into the architecture of TheBulletin AI, with a core focus on <strong>how AI powers the intelligence of the system</strong>.</p>
+<hr>
+<h2 id="the-system-architecture-from-rss-to-screen">The System Architecture: From RSS to Screen<a hidden class="anchor" aria-hidden="true" href="#the-system-architecture-from-rss-to-screen">#</a></h2>
+<p>The system follows a decoupled, contract-first, producer-consumer pattern designed to keep operational costs low while remaining highly scalable:</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+    RSS([&#34;External RSS Feeds&#34;]) --&gt;|Polls| SC[&#34;news-scrapers-service\nPython / Trafilatura&#34;]
+    SC --&gt;|Pushes Raw Articles| RS[(&#34;Redis Stream\narticle.ingested&#34;)]
+    RS --&gt;|Pops Articles| AW[&#34;news-ai-worker\nPython / SQLAlchemy&#34;]
+    AW &lt;--&gt;|&#34;Inference API\n(Local Ollama / Groq)&#34;| LLM[&#34;LLM &amp; Embeddings\nLlama 3.3 / BGE-M3&#34;]
+    AW --&gt;|Writes Enriched Data| DB[(&#34;Supabase PostgreSQL\nwith pgvector&#34;)]
+    
+    MA[&#34;news-mobile-app\nFlutter Client&#34;] --&gt;|Reads News| GW[&#34;news-api-gateway\nFastAPI / Python&#34;]
+    GW &lt;--&gt;|SQL/Admin Ops| DB
+</code></pre><ol>
+<li><strong><code>news-scrapers-service</code></strong>: Polls major Indian news RSS feeds, extracts the raw main text using <code>trafilatura</code> (stripping ads and HTML noise), and pushes a schema-validated article payload to a Redis stream.</li>
+<li><strong><code>news-ai-worker</code></strong>: Consumes raw articles from Redis, coordinates with LLMs for semantic clustering and metadata enrichment, and saves them to PostgreSQL.</li>
+<li><strong><code>news-api-gateway</code></strong>: A lightweight, highly concurrent FastAPI gateway that serves static endpoints cached at the Cloudflare CDN edge.</li>
+<li><strong><code>news-mobile-app</code></strong>: A cross-platform Flutter application providing users with a clean, instant-booting offline-first interface.</li>
+</ol>
+<hr>
+<h2 id="how-ai-powers-the-brain">How AI Powers the Brain<a hidden class="anchor" aria-hidden="true" href="#how-ai-powers-the-brain">#</a></h2>
+<p>The heart of TheBulletin AI lies in the <code>news-ai-worker</code>. This service operates as an inference-agnostic pipeline that coordinates vector search models and Large Language Models to enrich raw incoming data.</p>
+<p>Here are the two core AI pillars that drive the platform:</p>
+<h3 id="1-semantic-clustering-using-bge-m3-embeddings--pgvector">1. Semantic Clustering (Using BGE-M3 Embeddings + pgvector)<a hidden class="anchor" aria-hidden="true" href="#1-semantic-clustering-using-bge-m3-embeddings--pgvector">#</a></h3>
+<p>When a new article is scraped, the first challenge is deduplication and grouping. If ten different outlets write about the same press release, we shouldn&rsquo;t show the user ten separate headlines.</p>
+<p>Traditional keyword-based clustering breaks down when outlets use drastically different headlines:</p>
+<ul>
+<li><em>Outlet A:</em> &ldquo;Govt slashes corporate tax rates to boost investment.&rdquo;</li>
+<li><em>Outlet B:</em> &ldquo;New tax reforms draw criticism from opposition leaders.&rdquo;</li>
+</ul>
+<p>To group these together, TheBulletin AI uses <strong>semantic clustering</strong>:</p>
+<ol>
+<li>When an article is processed, we generate an embedding text string combining its title and a brief summary.</li>
+<li>We call a vector embedding model (<strong>BGE-M3</strong> in local dev) to represent this text as a 768-dimensional vector.</li>
+<li>We run a cosine similarity query in PostgreSQL using the <code>pgvector</code> extension against recent events:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> event_id, <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> (embedding <span style="color:#f92672">&lt;=&gt;</span> :query_embedding) <span style="color:#66d9ef">AS</span> similarity
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> vector_embeddings
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> similarity <span style="color:#66d9ef">DESC</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">1</span>;
+</span></span></code></pre></div></li>
+<li>If the similarity is above our threshold (typically <code>0.85</code>), the worker automatically attaches the article to the existing <code>NewsEvent</code> cluster.</li>
+<li>If no match is found, it creates a brand-new event cluster and saves the new vector embedding to the database.</li>
+</ol>
+<p>This guarantees that different angles of the same story are automatically unified under a single narrative timeline.</p>
+<hr>
+<h3 id="2-multi-dimensional-llm-enrichment">2. Multi-Dimensional LLM Enrichment<a hidden class="anchor" aria-hidden="true" href="#2-multi-dimensional-llm-enrichment">#</a></h3>
+<p>Once we have a news event, we need to extract intelligence from it. Instead of running multiple expensive API calls, we prompt an instruction-tuned LLM (like <strong>Llama 3.3 70B</strong> or <strong>Phi-3-mini</strong>) to perform three analysis tasks in a single pass using <strong>structured JSON mode</strong>.</p>
+<p>The system system prompt enforces a strict contract:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;summary&#34;</span>: <span style="color:#e6db74">&#34;2-3 sentence objective summary text&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;bias&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;leaning&#34;</span>: <span style="color:#e6db74">&#34;left|center|right|mixed|unknown&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;confidence&#34;</span>: <span style="color:#ae81ff">0.0-1.0</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;notes&#34;</span>: [<span style="color:#e6db74">&#34;evidence of slant or loaded language&#34;</span>]
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;truth&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;score&#34;</span>: <span style="color:#ae81ff">0.0-1.0</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;corroboration_count&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;discrepancy_flags&#34;</span>: [<span style="color:#e6db74">&#34;list of factual contradictions&#34;</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;primary_wire_service&#34;</span>: <span style="color:#e6db74">&#34;reuters|afp|pti|null&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Let&rsquo;s break down these three aspects of the enrichment bundle:</p>
+<h4 id="a-objective-summarization">A. Objective Summarization<a hidden class="anchor" aria-hidden="true" href="#a-objective-summarization">#</a></h4>
+<p>The LLM extracts factual core points from the raw text (truncated to 2,000 characters for latency and speed) to synthesize a neutral, jargon-free summary. By instructing the model to focus purely on the common denominator facts, we prevent the summary from carrying over the emotional slants of the individual outlets.</p>
+<h4 id="b-bias-analysis">B. Bias Analysis<a hidden class="anchor" aria-hidden="true" href="#b-bias-analysis">#</a></h4>
+<p>Polarized journalism often uses loaded adjectives, selective reporting, or opinionated framing. The model reviews the phrasing, compares it to neutral standards, and labels the political leaning as <code>left</code>, <code>center</code>, <code>right</code>, or <code>mixed</code> along with a confidence rating and brief supporting notes.</p>
+<p>For instance, if an article uses loaded emotional phrases to describe a legislative bill, the AI notes that phrasing, lowering the credibility or designating the leaning accordingly.</p>
+<h4 id="c-truth-verification-scoring">C. Truth-Verification Scoring<a hidden class="anchor" aria-hidden="true" href="#c-truth-verification-scoring">#</a></h4>
+<p>Trust is paramount. The LLM estimates a factual credibility score between <code>0.0</code> and <code>1.0</code>. It calculates this based on:</p>
+<ul>
+<li><strong>Corroboration</strong>: Are other outlets reporting the same facts?</li>
+<li><strong>Discrepancy Flags</strong>: Are there direct contradictions (e.g., conflicting casualty counts, dates, or statements)?</li>
+<li><strong>Source Quality</strong>: Is the article citing reputable primary wire services like PTI, Reuters, or Associated Press?</li>
+</ul>
+<hr>
+<h2 id="balancing-local-gpu-power--cloud-economy">Balancing Local GPU Power &amp; Cloud Economy<a hidden class="anchor" aria-hidden="true" href="#balancing-local-gpu-power--cloud-economy">#</a></h2>
+<p>Deploying deep learning models can get incredibly expensive. TheBulletin AI is engineered with a <strong>0-Investment Strategy</strong> in local development, transitioning to a highly cost-optimized setup for production:</p>
+<ul>
+<li><strong>Local Dev (Zero-Cost):</strong> We run a local Ubuntu server equipped with an NVIDIA RTX 5090. The backend wires directly to a local <strong>Ollama</strong> instance running <code>phi3:mini</code> (for chat completions) and <code>bge-m3</code> (for embeddings). This allows unlimited, fast, and free testing.</li>
+<li><strong>Production MVP:</strong> Instead of keeping an expensive GPU server powered on 24/7 in the cloud, the worker switches to serverless inference endpoints like <strong>Groq</strong> or <strong>Together AI</strong> using the exact same OpenAI-compatible API client. We only pay a fraction of a cent per million tokens, scaling down to absolute zero when there are no new articles.</li>
+</ul>
+<hr>
+<h2 id="safe-guarding-ai-outputs-human-in-the-loop">Safe-guarding AI Outputs: Human-in-the-Loop<a hidden class="anchor" aria-hidden="true" href="#safe-guarding-ai-outputs-human-in-the-loop">#</a></h2>
+<p>AI is not perfect. It can hallucinate, misinterpret satire, or make mistakes in bias analysis. To ensure the integrity of the platform, the architecture enforces two safety layers:</p>
+<h3 id="1-global-traceability-correlation-ids">1. Global Traceability (Correlation IDs)<a hidden class="anchor" aria-hidden="true" href="#1-global-traceability-correlation-ids">#</a></h3>
+<p>Every raw article is assigned a UUID v4 <code>trace_id</code> the moment it enters the scraper service. This <code>trace_id</code> is propagated through the Redis stream envelope, sent with LLM API headers, and persisted in the database. If an editor flags an incorrect summary, we can grep the JSON logs using that single <code>trace_id</code> to trace the entire pipeline&rsquo;s state and find exactly where the prompt fell short.</p>
+<h3 id="2-database-level-coalesced-overrides">2. Database-Level Coalesced Overrides<a hidden class="anchor" aria-hidden="true" href="#2-database-level-coalesced-overrides">#</a></h3>
+<p>We don&rsquo;t want to blindly trust the AI, nor do we want to overwrite its audit trail. The database schema supports <code>admin_truth_score_override</code> and <code>admin_bias_override</code> fields.</p>
+<p>When the API Gateway queries a news event to serve to the Flutter mobile app, it uses a SQL coalesce strategy:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> 
+</span></span><span style="display:flex;"><span>    event_id,
+</span></span><span style="display:flex;"><span>    COALESCE(admin_truth_score_override, ai_truth_score) <span style="color:#66d9ef">AS</span> truth_score,
+</span></span><span style="display:flex;"><span>    COALESCE(admin_bias_override, ai_bias_leaning) <span style="color:#66d9ef">AS</span> bias_leaning
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> news_events;
+</span></span></code></pre></div><p>If an administrator manually overrides a score in the Retool-based Admin portal, the app instantly displays the verified human score, while the original AI-generated evaluation is preserved untouched for audit and prompt tuning.</p>
+<hr>
+<h2 id="the-road-ahead">The Road Ahead<a hidden class="anchor" aria-hidden="true" href="#the-road-ahead">#</a></h2>
+<p>By leveraging vector embeddings for clustering and LLMs for bias/truth scoring, TheBulletin AI shifts the news reader&rsquo;s role from sifting through noise to analyzing objective narratives.</p>
+<p>Next on the roadmap is expanding the semantic search window to group historical events into macro-narratives (e.g., linking separate policy reform articles over a six-month period) to show how coverage changes over time.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://pranavburadkar.github.io/tags/ai/">AI</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/llms/">LLMs</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/vector-search/">Vector Search</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/system-architecture/">System Architecture</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/nlp/">NLP</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://pranavburadkar.github.io/">Pranav Buradkar</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
