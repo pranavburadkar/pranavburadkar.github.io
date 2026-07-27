@@ -4,10 +4,17 @@
     <title>AI on Pranav Buradkar</title>
     <link>https://pranavburadkar.github.io/tags/ai/</link>
     <description>Recent content in AI on Pranav Buradkar</description>
-    <generator>Hugo -- 0.162.0</generator>
+    <generator>Hugo -- 0.164.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 07 Jun 2026 11:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Mon, 27 Jul 2026 15:00:00 +0530</lastBuildDate>
     <atom:link href="https://pranavburadkar.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16</title>
+      <link>https://pranavburadkar.github.io/posts/mixed-precision-training/</link>
+      <pubDate>Mon, 27 Jul 2026 15:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/mixed-precision-training/</guid>
+      <description>An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.</description>
+    </item>
     <item>
       <title>Building TheBulletin AI: An Autonomous, Bias-Aware News Aggregator</title>
       <link>https://pranavburadkar.github.io/posts/thebulletin-ai/</link>

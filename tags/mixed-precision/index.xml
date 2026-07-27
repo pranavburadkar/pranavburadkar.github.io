@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Mixed Precision on Pranav Buradkar</title>
+    <link>https://pranavburadkar.github.io/tags/mixed-precision/</link>
+    <description>Recent content in Mixed Precision on Pranav Buradkar</description>
+    <generator>Hugo -- 0.164.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 27 Jul 2026 15:00:00 +0530</lastBuildDate>
+    <atom:link href="https://pranavburadkar.github.io/tags/mixed-precision/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16</title>
+      <link>https://pranavburadkar.github.io/posts/mixed-precision-training/</link>
+      <pubDate>Mon, 27 Jul 2026 15:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/mixed-precision-training/</guid>
+      <description>An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Omniverse on Pranav Buradkar</title>
+    <link>https://pranavburadkar.github.io/tags/omniverse/</link>
+    <description>Recent content in Omniverse on Pranav Buradkar</description>
+    <generator>Hugo -- 0.164.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 14 Jun 2026 11:00:00 +0530</lastBuildDate>
+    <atom:link href="https://pranavburadkar.github.io/tags/omniverse/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mastering NVIDIA Omniverse Kit SDK: From App Templates to Custom Extensions</title>
+      <link>https://pranavburadkar.github.io/posts/omniverse-kit-sdk/</link>
+      <pubDate>Sun, 14 Jun 2026 11:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/posts/omniverse-kit-sdk/</guid>
+      <description>An in-depth developer guide to building modular 3D applications, microservices, and custom UI extensions using the NVIDIA Omniverse Kit SDK.</description>
+    </item>
+  </channel>
+</rss>

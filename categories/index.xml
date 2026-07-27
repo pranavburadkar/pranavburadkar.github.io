@@ -4,22 +4,22 @@
     <title>Categories on Pranav Buradkar</title>
     <link>https://pranavburadkar.github.io/categories/</link>
     <description>Recent content in Categories on Pranav Buradkar</description>
-    <generator>Hugo -- 0.162.0</generator>
+    <generator>Hugo -- 0.164.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 07 Jun 2026 11:00:00 +0530</lastBuildDate>
+    <lastBuildDate>Mon, 27 Jul 2026 15:00:00 +0530</lastBuildDate>
     <atom:link href="https://pranavburadkar.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Technology</title>
+      <link>https://pranavburadkar.github.io/categories/technology/</link>
+      <pubDate>Mon, 27 Jul 2026 15:00:00 +0530</pubDate>
+      <guid>https://pranavburadkar.github.io/categories/technology/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Projects</title>
       <link>https://pranavburadkar.github.io/categories/projects/</link>
       <pubDate>Sun, 07 Jun 2026 11:00:00 +0530</pubDate>
       <guid>https://pranavburadkar.github.io/categories/projects/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Technology</title>
-      <link>https://pranavburadkar.github.io/categories/technology/</link>
-      <pubDate>Sun, 10 May 2026 10:00:00 +0530</pubDate>
-      <guid>https://pranavburadkar.github.io/categories/technology/</guid>
       <description></description>
     </item>
   </channel>

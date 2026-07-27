@@ -1,10 +1,66 @@
-
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://pranavburadkar.github.io/tags/ai/</loc>
-    <lastmod>2026-06-07T11:00:00+05:30</lastmod>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/series/ai-guides/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/categories/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/deep-learning/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/posts/mixed-precision-training/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/mixed-precision/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/optimization/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/posts/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/pytorch/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/series/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/categories/technology/</loc>
+    <lastmod>2026-07-27T15:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/3d-development/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/extensions/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/kit-sdk/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/posts/omniverse-kit-sdk/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/omniverse/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/series/omniverse-guides/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
+  </url><url>
+    <loc>https://pranavburadkar.github.io/tags/openusd/</loc>
+    <lastmod>2026-06-14T11:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/series/ai-projects/</loc>
     <lastmod>2026-06-07T11:00:00+05:30</lastmod>
@@ -15,19 +71,10 @@
     <loc>https://pranavburadkar.github.io/projects/a/</loc>
     <lastmod>2026-06-07T11:00:00+05:30</lastmod>
   </url><url>
-    <loc>https://pranavburadkar.github.io/categories/</loc>
-    <lastmod>2026-06-07T11:00:00+05:30</lastmod>
-  </url><url>
     <loc>https://pranavburadkar.github.io/tags/llms/</loc>
     <lastmod>2026-06-07T11:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/tags/nlp/</loc>
-    <lastmod>2026-06-07T11:00:00+05:30</lastmod>
-  </url><url>
-    <loc>https://pranavburadkar.github.io/posts/</loc>
-    <lastmod>2026-06-07T11:00:00+05:30</lastmod>
-  </url><url>
-    <loc>https://pranavburadkar.github.io/</loc>
     <lastmod>2026-06-07T11:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/categories/projects/</loc>
@@ -36,13 +83,7 @@
     <loc>https://pranavburadkar.github.io/projects/</loc>
     <lastmod>2026-06-07T11:00:00+05:30</lastmod>
   </url><url>
-    <loc>https://pranavburadkar.github.io/series/</loc>
-    <lastmod>2026-06-07T11:00:00+05:30</lastmod>
-  </url><url>
     <loc>https://pranavburadkar.github.io/tags/system-architecture/</loc>
-    <lastmod>2026-06-07T11:00:00+05:30</lastmod>
-  </url><url>
-    <loc>https://pranavburadkar.github.io/tags/</loc>
     <lastmod>2026-06-07T11:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/tags/vector-search/</loc>
@@ -51,19 +92,10 @@
     <loc>https://pranavburadkar.github.io/posts/understanding-llm-optimization/</loc>
     <lastmod>2026-05-10T10:00:00+05:30</lastmod>
   </url><url>
-    <loc>https://pranavburadkar.github.io/series/ai-guides/</loc>
-    <lastmod>2026-05-10T10:00:00+05:30</lastmod>
-  </url><url>
     <loc>https://pranavburadkar.github.io/tags/inference/</loc>
     <lastmod>2026-05-10T10:00:00+05:30</lastmod>
   </url><url>
-    <loc>https://pranavburadkar.github.io/tags/optimization/</loc>
-    <lastmod>2026-05-10T10:00:00+05:30</lastmod>
-  </url><url>
     <loc>https://pranavburadkar.github.io/tags/quantization/</loc>
-    <lastmod>2026-05-10T10:00:00+05:30</lastmod>
-  </url><url>
-    <loc>https://pranavburadkar.github.io/categories/technology/</loc>
     <lastmod>2026-05-10T10:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/tags/fine-tuning/</loc>
@@ -85,9 +117,6 @@
     <lastmod>2026-04-12T10:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/posts/understanding-lora-fine-tuning/</loc>
-    <lastmod>2026-03-20T10:00:00+05:30</lastmod>
-  </url><url>
-    <loc>https://pranavburadkar.github.io/tags/deep-learning/</loc>
     <lastmod>2026-03-20T10:00:00+05:30</lastmod>
   </url><url>
     <loc>https://pranavburadkar.github.io/tags/computer-vision/</loc>

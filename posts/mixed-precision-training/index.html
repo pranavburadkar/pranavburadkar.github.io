@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16 | Pranav Buradkar</title>
+<meta name="keywords" content="AI, Deep Learning, PyTorch, Optimization, Mixed Precision">
+<meta name="description" content="An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.">
+<meta name="author" content="Pranav Buradkar">
+<link rel="canonical" href="https://pranavburadkar.github.io/posts/mixed-precision-training/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.01de0cf7a606abfce8ed6089ab89e1538996376aac8ff05d3c7d2340f377b07c.css" integrity="sha256-Ad4M96YGq/zo7WCJq4nhU4mWN2qsj/BdPH0jQPN3sHw=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://pranavburadkar.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://pranavburadkar.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://pranavburadkar.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://pranavburadkar.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://pranavburadkar.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://pranavburadkar.github.io/posts/mixed-precision-training/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false},
+      {left: '\\(', right: '\\)', display: false},
+      {left: '\\[', right: '\\[', display: true}
+    ],
+    throwOnError : false
+  });"></script><script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const mermaidBlocks = document.querySelectorAll('.language-mermaid');
+    mermaidBlocks.forEach((block, index) => {
+      
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = block.textContent;
+      
+      
+      const pre = block.parentNode;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    
+    mermaid.run();
+  });
+</script>
+<meta property="og:url" content="https://pranavburadkar.github.io/posts/mixed-precision-training/">
+  <meta property="og:site_name" content="Pranav Buradkar">
+  <meta property="og:title" content="Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16">
+  <meta property="og:description" content="An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-27T15:00:00+05:30">
+    <meta property="article:modified_time" content="2026-07-27T15:00:00+05:30">
+    <meta property="article:tag" content="AI">
+    <meta property="article:tag" content="Deep Learning">
+    <meta property="article:tag" content="PyTorch">
+    <meta property="article:tag" content="Optimization">
+    <meta property="article:tag" content="Mixed Precision">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/understanding-llm-optimization/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/fine-tune-llama-3-lora/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/understanding-lora-fine-tuning/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/deep-learning-fundamentals-attention-vit/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/simple-guide-to-vae/">
+      <meta property="og:see_also" content="https://pranavburadkar.github.io/posts/beginners-guide-to-llm-quantization/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16">
+<meta name="twitter:description" content="An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://pranavburadkar.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16",
+      "item": "https://pranavburadkar.github.io/posts/mixed-precision-training/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16",
+  "name": "Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16",
+  "description": "An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.",
+  "keywords": [
+    "AI", "Deep Learning", "PyTorch", "Optimization", "Mixed Precision"
+  ],
+  "articleBody": "As deep learning models continue to scale into billions of parameters, training them has become an incredibly resource-intensive endeavor. If you have ever trained a large convolutional neural network or a Transformer model, you have likely run into the dreaded out-of-memory (OOM) error on your GPU.\nTraditionally, deep learning computations are performed in Single Precision (also known as FP32), where every weight, activation, and gradient is represented by a 32-bit floating-point number. While FP32 provides high numerical precision, it consumes significant memory and bandwidth.\nMixed Precision Training is a highly effective optimization technique that slashes training times and memory consumption by utilizing both 16-bit (half-precision) and 32-bit floating-point formats. When implemented correctly, it can speed up training by 2x to 3x and reduce the model’s memory footprint by up to 50%, with virtually no loss in final accuracy.\nIn this guide, we will dive deep into how mixed precision training works under the hood, the math behind loss scaling, the crucial differences between FP16 and BF16, and how to implement it in PyTorch using Automatic Mixed Precision (AMP).\n1. Numerical Formats: FP32 vs. FP16 vs. BF16 To understand mixed precision training, we first need to look at how computers represent real numbers using the IEEE 754 standard. A floating-point number is stored in binary using three components:\nSign bit: Determines whether the number is positive or negative. Exponent: Determines the magnitude/dynamic range of the number. Fraction (Mantissa/Significand): Determines the precision or resolution of the number. graph TD subgraph FP32 [\"FP32 (Single Precision - 32 bits)\"] S32[\"Sign (1 bit)\"] --- E32[\"Exponent (8 bits)\"] --- F32[\"Fraction / Mantissa (23 bits)\"] end subgraph FP16 [\"FP16 (Half Precision - 16 bits)\"] S16[\"Sign (1 bit)\"] --- E16[\"Exponent (5 bits)\"] --- F16[\"Fraction / Mantissa (10 bits)\"] end subgraph BF16 [\"BF16 (Brain Float - 16 bits)\"] SB16[\"Sign (1 bit)\"] --- EB16[\"Exponent (8 bits)\"] --- FB16[\"Fraction / Mantissa (7 bits)\"] end style FP32 fill:#d1e7dd,stroke:#0f5132,stroke-width:2px style FP16 fill:#f8d7da,stroke:#842029,stroke-width:2px style BF16 fill:#fff3cd,stroke:#664d03,stroke-width:2px Here is a comparison of their layout and characteristics:\nFormat Total Bits Exponent Bits Mantissa Bits Smallest Positive Normal Number Largest Representable Number Precision (Decimal Digits) FP32 32 8 23 $1.18 \\times 10^{-38}$ $3.40 \\times 10^{38}$ ~7.2 FP16 16 5 10 $6.10 \\times 10^{-5}$ $6.55 \\times 10^{4}$ ~3.3 BF16 16 8 7 $1.18 \\times 10^{-38}$ $3.39 \\times 10^{38}$ ~2.1 FP16 (Half Precision) FP16 uses half the bits of FP32. While this means half the memory transfer time and double the arithmetic throughput on modern Tensor Cores, it comes with a major catch: its dynamic range is extremely narrow. The largest number it can represent is only 65,504, and anything smaller than $6.10 \\times 10^{-5}$ (or $5.96 \\times 10^{-8}$ for subnormal/denormal numbers) underflows to zero.\nBF16 (Brain Floating Point) Developed by Google Brain, BF16 is an alternative 16-bit format designed specifically for machine learning. Instead of shrinking both the exponent and mantissa, BF16 keeps the exact same exponent size as FP32 (8 bits) but sacrifices mantissa bits (reduced to 7).\nBecause it has the same exponent size, BF16 has the same dynamic range as FP32. This means you can convert FP32 numbers to BF16 without worrying about overflow or underflow. However, because its mantissa is smaller, it has slightly lower precision than FP16.\n2. Why Naive Half-Precision Training Fails It is tempting to simply cast all model weights and inputs to FP16 and train the network. However, doing so almost always results in training instability or complete failure (divergent loss). This happens due to two primary issues:\nIssue A: Gradient Underflow During backpropagation, gradients flow backward through the network. In deep networks, gradients tend to become progressively smaller (especially in early layers).\nIn FP16, any gradient value smaller than $2^{-24}$ ($\\approx 5.96 \\times 10^{-8}$) becomes exactly zero. When these gradients underflow, the weights in those layers stop updating, effectively killing the training process. Studies show that in many state-of-the-art networks, more than 50% of the gradients lie in this underflow region.\ngraph TD G[Gradients in FP32] --\u003e G_large[\"\u003e= 5.96e-8\"] G --\u003e G_small[\"\u003c 5.96e-8\"] G_large --\u003e|Representable in FP16| Train[\"Successful Updates\"] G_small --\u003e|Underflow to 0.0| Dead[\"Zero Gradients (No Learning)\"] style G_small fill:#ffccd5,stroke:#ff3333 style Dead fill:#ffccd5,stroke:#ff3333 style Train fill:#d8f3dc,stroke:#1b4332 Issue B: The Magnitude Mismatch (Tiny Updates) The standard gradient update formula is: $$W_{new} = W_{old} - \\eta \\cdot \\nabla L$$Where $\\eta$ is the learning rate and $\\nabla L$ is the gradient. Because $\\eta$ is typically small (e.g., $10^{-4}$), the update term $\\eta \\cdot \\nabla L$ is extremely small relative to the weight value $W_{old}$.\nIn FP16, if the difference in magnitude between two numbers is too large, the smaller number cannot be represented when added to the larger one. For example, if $W_{old} = 1.0$ and the update is $10^{-4}$, the limited mantissa of FP16 (only 10 bits) cannot represent the sum accurately. The update gets rounded to zero, and the weight remains unchanged.\n3. The Three Pillars of Mixed Precision Training To solve the limitations of FP16, researchers at NVIDIA and Baidu introduced three key techniques in their seminal 2017 paper, “Mixed Precision Training”:\n1. FP32 Master Weights While computations are done in FP16 for speed, we maintain a master copy of the weights in FP32.\nDuring each training iteration:\nThe FP32 master weights are copied/casted to FP16. The forward pass and backward pass are performed using the FP16 weights, generating FP16 gradients. During the optimization step, the FP16 gradients are cast back to FP32. The optimizer updates the FP32 master weights using these FP32 gradients. This ensures that tiny weight updates are not lost due to magnitude mismatch, as the accumulation always happens in high-precision FP32.\n2. Loss Scaling (Underflow Prevention) To prevent gradient underflow, we scale the loss by a factor $S$ (typically a large power of 2, like $65,536$) before backpropagation.\nBy the chain rule, scaling the loss scales all subsequent gradients by the same factor $S$: $$\\nabla_{W} (S \\cdot L) = S \\cdot \\nabla_{W} L$$This mathematically shifts the entire gradient distribution to the right, pushing the small gradients out of the underflow zone and into the representable range of FP16.\nAfter backpropagation, but before the optimizer updates the weights, we must unscale the gradients by dividing them by $S$: $$\\text{Updated Gradients} = \\frac{\\text{Scaled Gradients}}{S}$$This ensures the weights are updated using the correct, original gradient values.\n3. Dynamic Loss Scaling Using a static scaling factor $S$ can be problematic: too small, and gradients still underflow; too large, and gradients overflow (becoming Inf or NaN), ruining the weights.\nDynamic Loss Scaling solves this by adjusting the scale factor automatically:\nStart with a very high scale factor (e.g., $2^{16}$). Perform backpropagation and check if any gradient contains Inf or NaN. If an overflow is detected: Discard the entire step (do not update weights). Decrease the scale factor (e.g., divide by 2). If no overflow is detected: Accept the step and update the weights. If no overflows occur for a consecutive number of steps (e.g., 2000 steps), increase the scale factor (e.g., multiply by 2) to keep it as large as possible. 4. The Mixed Precision Training Workflow Putting it all together, here is how a single training iteration flows under mixed precision:\nsequenceDiagram participant MW as \"FP32 Master Weights\" participant W16 as \"FP16 Weights\" participant FP as \"Forward Pass (FP16)\" participant Loss as \"Loss Computation (FP32)\" participant BP as \"Backward Pass (FP16)\" participant Optim as \"Optimizer (FP32)\" MW-\u003e\u003eW16: 1. Cast weights to FP16 W16-\u003e\u003eFP: 2. Input data (FP16) FP-\u003e\u003eLoss: 3. Compute activations and output Note over Loss: 4. Compute Loss in FP32 Loss-\u003e\u003eLoss: 5. Scale Loss (Loss * Scale) Loss-\u003e\u003eBP: 6. Run Backprop in FP16 BP-\u003e\u003eOptim: 7. Output scaled gradients (FP16) Note over Optim: 8. Cast gradients to FP32 Note over Optim: 9. Unscale gradients (Grads / Scale) Note over Optim: 10. Check for NaN/Inf Optim-\u003e\u003eMW: 11. Update Master Weights (FP32) 5. Implementing Mixed Precision in PyTorch In PyTorch, implementing mixed precision training is extremely easy thanks to the torch.cuda.amp (Automatic Mixed Precision) package. It provides two main utilities:\ntorch.cuda.amp.autocast: Automatically handles casting tensors to FP16 for operations that benefit from it (like matrix multiplications and convolutions) while keeping numerical-critical operations (like softmax, layer normalization, and loss functions) in FP32. torch.cuda.amp.GradScaler: Manages dynamic loss scaling. Let’s compare a standard training loop with a mixed precision training loop.\nStandard Training Loop (FP32) import torch model = MyModel().cuda() optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) for inputs, targets in dataloader: inputs, targets = inputs.cuda(), targets.cuda() optimizer.zero_grad() # Forward pass outputs = model(inputs) loss = criterion(outputs, targets) # Backward pass loss.backward() # Optimizer step optimizer.step() Mixed Precision Training Loop (FP16 + AMP) import torch # 1. Import autocast and GradScaler from torch.cuda.amp import autocast, GradScaler model = MyModel().cuda() optimizer = torch.optim.Adam(model.parameters(), lr=1e-3) # 2. Initialize the gradient scaler scaler = GradScaler() for inputs, targets in dataloader: inputs, targets = inputs.cuda(), targets.cuda() optimizer.zero_grad() # 3. Use autocast context manager for forward pass with autocast(): outputs = model(inputs) loss = criterion(outputs, targets) # 4. Scale the loss and run backward pass scaler.scale(loss).backward() # 5. Step the optimizer through the scaler scaler.step(optimizer) # 6. Update the scale factor for the next iteration scaler.update() What does the GradScaler do in the loop? scaler.scale(loss) multiplies the loss by the current scale factor. scaler.scale(loss).backward() computes the scaled gradients. scaler.step(optimizer) first unscales the gradients (gradients / scale). If the unscaled gradients do not contain NaN or Inf, it executes optimizer.step(). If they do contain invalid numbers, the step is skipped. scaler.update() adjusts the scale factor based on whether overflows were detected in the step. 6. FP16 vs. BF16: Which Should You Use? With modern GPUs (NVIDIA Ampere architecture and newer, such as the RTX 30/40 series, A100, and H100), BF16 has become the preferred choice over FP16.\nHere is why:\nNo Loss Scaling Required: Because BF16 has the same dynamic range as FP32, it does not suffer from gradient underflow. You can completely omit the GradScaler in PyTorch! Simpler Implementation: In PyTorch, you simply set the dtype of autocast to torch.bfloat16 and train without a scaler: # Training with BF16 (No GradScaler needed!) for inputs, targets in dataloader: optimizer.zero_grad() with autocast(dtype=torch.bfloat16): outputs = model(inputs) loss = criterion(outputs, targets) loss.backward() optimizer.step() The Selection Rule of Thumb Use BF16 if you are training on an NVIDIA Ampere or Hopper GPU (RTX 30xx/40xx, A100, H100) or Google TPUs. It is faster, more stable, and easier to write. Use FP16 with Loss Scaling if you are training on older GPUs (NVIDIA Volta or Turing architecture, like the V100, T4, or RTX 20xx series). These cards do not have hardware support for BF16, so using it will cause PyTorch to fall back to CPU emulation, making training extremely slow. Conclusion Mixed precision training is one of the most accessible and impactful optimizations in modern deep learning. By strategically combining 16-bit float formats (FP16/BF16) for compute-heavy operations and 32-bit float formats (FP32) for precision-critical operations, you can:\nCut your GPU memory usage in half, allowing for larger batch sizes or larger models. Speed up training loops by 2x to 3x on hardware with Tensor Cores. Maintain the same convergence behavior and model accuracy. If you are training on modern hardware, try switching your training loop to BF16 today. It requires changing just a single line of code and will instantly unlock the full power of your GPU.\nThis post is part of the AI Guides series. Check out the Beginner’s Guide to LLM Quantization and Simple Guide to LoRA for more guides on deep learning optimization.\n",
+  "wordCount" : "1897",
+  "inLanguage": "en",
+  "datePublished": "2026-07-27T15:00:00+05:30",
+  "dateModified": "2026-07-27T15:00:00+05:30",
+  "author":{
+    "@type": "Person",
+    "name": "Pranav Buradkar"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://pranavburadkar.github.io/posts/mixed-precision-training/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Pranav Buradkar",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pranavburadkar.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://pranavburadkar.github.io/" accesskey="h" title="Pranav Buradkar (Alt + H)">Pranav Buradkar</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://pranavburadkar.github.io/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/projects/" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://pranavburadkar.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Demystifying Mixed Precision Training: Speeding Up Deep Learning with FP16 and BF16
+    </h1>
+    <div class="post-description">
+      An in-depth guide on how mixed precision training works, the mathematics of loss scaling, the difference between FP16 and BF16, and how to implement it in PyTorch.
+    </div>
+    <div class="post-meta"><span title='2026-07-27 15:00:00 +0530 IST'>July 27, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>Pranav Buradkar</span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>As deep learning models continue to scale into billions of parameters, training them has become an incredibly resource-intensive endeavor. If you have ever trained a large convolutional neural network or a Transformer model, you have likely run into the dreaded out-of-memory (OOM) error on your GPU.</p>
+<p>Traditionally, deep learning computations are performed in <strong>Single Precision</strong> (also known as <strong>FP32</strong>), where every weight, activation, and gradient is represented by a 32-bit floating-point number. While FP32 provides high numerical precision, it consumes significant memory and bandwidth.</p>
+<p><strong>Mixed Precision Training</strong> is a highly effective optimization technique that slashes training times and memory consumption by utilizing both 16-bit (half-precision) and 32-bit floating-point formats. When implemented correctly, it can speed up training by <strong>2x to 3x</strong> and reduce the model&rsquo;s memory footprint by <strong>up to 50%</strong>, with virtually <strong>no loss in final accuracy</strong>.</p>
+<p>In this guide, we will dive deep into how mixed precision training works under the hood, the math behind loss scaling, the crucial differences between <strong>FP16</strong> and <strong>BF16</strong>, and how to implement it in PyTorch using Automatic Mixed Precision (AMP).</p>
+<hr>
+<h2 id="1-numerical-formats-fp32-vs-fp16-vs-bf16">1. Numerical Formats: FP32 vs. FP16 vs. BF16<a hidden class="anchor" aria-hidden="true" href="#1-numerical-formats-fp32-vs-fp16-vs-bf16">#</a></h2>
+<p>To understand mixed precision training, we first need to look at how computers represent real numbers using the IEEE 754 standard. A floating-point number is stored in binary using three components:</p>
+<ol>
+<li><strong>Sign bit</strong>: Determines whether the number is positive or negative.</li>
+<li><strong>Exponent</strong>: Determines the magnitude/dynamic range of the number.</li>
+<li><strong>Fraction (Mantissa/Significand)</strong>: Determines the precision or resolution of the number.</li>
+</ol>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+    subgraph FP32 [&#34;FP32 (Single Precision - 32 bits)&#34;]
+        S32[&#34;Sign (1 bit)&#34;] --- E32[&#34;Exponent (8 bits)&#34;] --- F32[&#34;Fraction / Mantissa (23 bits)&#34;]
+    end
+    subgraph FP16 [&#34;FP16 (Half Precision - 16 bits)&#34;]
+        S16[&#34;Sign (1 bit)&#34;] --- E16[&#34;Exponent (5 bits)&#34;] --- F16[&#34;Fraction / Mantissa (10 bits)&#34;]
+    end
+    subgraph BF16 [&#34;BF16 (Brain Float - 16 bits)&#34;]
+        SB16[&#34;Sign (1 bit)&#34;] --- EB16[&#34;Exponent (8 bits)&#34;] --- FB16[&#34;Fraction / Mantissa (7 bits)&#34;]
+    end
+    
+    style FP32 fill:#d1e7dd,stroke:#0f5132,stroke-width:2px
+    style FP16 fill:#f8d7da,stroke:#842029,stroke-width:2px
+    style BF16 fill:#fff3cd,stroke:#664d03,stroke-width:2px
+</code></pre><p>Here is a comparison of their layout and characteristics:</p>
+<table>
+	<thead>
+			<tr>
+					<th style="text-align: left">Format</th>
+					<th style="text-align: center">Total Bits</th>
+					<th style="text-align: center">Exponent Bits</th>
+					<th style="text-align: center">Mantissa Bits</th>
+					<th style="text-align: center">Smallest Positive Normal Number</th>
+					<th style="text-align: center">Largest Representable Number</th>
+					<th style="text-align: center">Precision (Decimal Digits)</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td style="text-align: left"><strong>FP32</strong></td>
+					<td style="text-align: center">32</td>
+					<td style="text-align: center">8</td>
+					<td style="text-align: center">23</td>
+					<td style="text-align: center">$1.18 \times 10^{-38}$</td>
+					<td style="text-align: center">$3.40 \times 10^{38}$</td>
+					<td style="text-align: center">~7.2</td>
+			</tr>
+			<tr>
+					<td style="text-align: left"><strong>FP16</strong></td>
+					<td style="text-align: center">16</td>
+					<td style="text-align: center">5</td>
+					<td style="text-align: center">10</td>
+					<td style="text-align: center">$6.10 \times 10^{-5}$</td>
+					<td style="text-align: center">$6.55 \times 10^{4}$</td>
+					<td style="text-align: center">~3.3</td>
+			</tr>
+			<tr>
+					<td style="text-align: left"><strong>BF16</strong></td>
+					<td style="text-align: center">16</td>
+					<td style="text-align: center">8</td>
+					<td style="text-align: center">7</td>
+					<td style="text-align: center">$1.18 \times 10^{-38}$</td>
+					<td style="text-align: center">$3.39 \times 10^{38}$</td>
+					<td style="text-align: center">~2.1</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="fp16-half-precision">FP16 (Half Precision)<a hidden class="anchor" aria-hidden="true" href="#fp16-half-precision">#</a></h3>
+<p>FP16 uses half the bits of FP32. While this means half the memory transfer time and double the arithmetic throughput on modern Tensor Cores, it comes with a major catch: its <strong>dynamic range</strong> is extremely narrow. The largest number it can represent is only <strong>65,504</strong>, and anything smaller than $6.10 \times 10^{-5}$ (or $5.96 \times 10^{-8}$ for subnormal/denormal numbers) underflows to zero.</p>
+<h3 id="bf16-brain-floating-point">BF16 (Brain Floating Point)<a hidden class="anchor" aria-hidden="true" href="#bf16-brain-floating-point">#</a></h3>
+<p>Developed by Google Brain, BF16 is an alternative 16-bit format designed specifically for machine learning. Instead of shrinking both the exponent and mantissa, BF16 keeps the <strong>exact same exponent size as FP32 (8 bits)</strong> but sacrifices mantissa bits (reduced to 7).</p>
+<p>Because it has the same exponent size, <strong>BF16 has the same dynamic range as FP32</strong>. This means you can convert FP32 numbers to BF16 without worrying about overflow or underflow. However, because its mantissa is smaller, it has slightly lower precision than FP16.</p>
+<hr>
+<h2 id="2-why-naive-half-precision-training-fails">2. Why Naive Half-Precision Training Fails<a hidden class="anchor" aria-hidden="true" href="#2-why-naive-half-precision-training-fails">#</a></h2>
+<p>It is tempting to simply cast all model weights and inputs to FP16 and train the network. However, doing so almost always results in training instability or complete failure (divergent loss). This happens due to two primary issues:</p>
+<h3 id="issue-a-gradient-underflow">Issue A: Gradient Underflow<a hidden class="anchor" aria-hidden="true" href="#issue-a-gradient-underflow">#</a></h3>
+<p>During backpropagation, gradients flow backward through the network. In deep networks, gradients tend to become progressively smaller (especially in early layers).</p>
+<p>In FP16, any gradient value smaller than $2^{-24}$ ($\approx 5.96 \times 10^{-8}$) becomes exactly zero. When these gradients underflow, the weights in those layers stop updating, effectively killing the training process. Studies show that in many state-of-the-art networks, more than <strong>50% of the gradients</strong> lie in this underflow region.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+    G[Gradients in FP32] --&gt; G_large[&#34;&gt;= 5.96e-8&#34;]
+    G --&gt; G_small[&#34;&lt; 5.96e-8&#34;]
+    G_large --&gt;|Representable in FP16| Train[&#34;Successful Updates&#34;]
+    G_small --&gt;|Underflow to 0.0| Dead[&#34;Zero Gradients (No Learning)&#34;]
+    
+    style G_small fill:#ffccd5,stroke:#ff3333
+    style Dead fill:#ffccd5,stroke:#ff3333
+    style Train fill:#d8f3dc,stroke:#1b4332
+</code></pre><h3 id="issue-b-the-magnitude-mismatch-tiny-updates">Issue B: The Magnitude Mismatch (Tiny Updates)<a hidden class="anchor" aria-hidden="true" href="#issue-b-the-magnitude-mismatch-tiny-updates">#</a></h3>
+<p>The standard gradient update formula is:
+</p>
+$$W_{new} = W_{old} - \eta \cdot \nabla L$$<p>Where $\eta$ is the learning rate and $\nabla L$ is the gradient. Because $\eta$ is typically small (e.g., $10^{-4}$), the update term $\eta \cdot \nabla L$ is extremely small relative to the weight value $W_{old}$.</p>
+<p>In FP16, if the difference in magnitude between two numbers is too large, the smaller number cannot be represented when added to the larger one. For example, if $W_{old} = 1.0$ and the update is $10^{-4}$, the limited mantissa of FP16 (only 10 bits) cannot represent the sum accurately. The update gets rounded to zero, and the weight remains unchanged.</p>
+<hr>
+<h2 id="3-the-three-pillars-of-mixed-precision-training">3. The Three Pillars of Mixed Precision Training<a hidden class="anchor" aria-hidden="true" href="#3-the-three-pillars-of-mixed-precision-training">#</a></h2>
+<p>To solve the limitations of FP16, researchers at NVIDIA and Baidu introduced three key techniques in their seminal 2017 paper, <em>&ldquo;Mixed Precision Training&rdquo;</em>:</p>
+<h3 id="1-fp32-master-weights">1. FP32 Master Weights<a hidden class="anchor" aria-hidden="true" href="#1-fp32-master-weights">#</a></h3>
+<p>While computations are done in FP16 for speed, we maintain a <strong>master copy of the weights in FP32</strong>.</p>
+<p>During each training iteration:</p>
+<ul>
+<li>The FP32 master weights are copied/casted to FP16.</li>
+<li>The forward pass and backward pass are performed using the FP16 weights, generating FP16 gradients.</li>
+<li>During the optimization step, the FP16 gradients are cast back to FP32.</li>
+<li>The optimizer updates the FP32 master weights using these FP32 gradients.</li>
+</ul>
+<p>This ensures that tiny weight updates are not lost due to magnitude mismatch, as the accumulation always happens in high-precision FP32.</p>
+<h3 id="2-loss-scaling-underflow-prevention">2. Loss Scaling (Underflow Prevention)<a hidden class="anchor" aria-hidden="true" href="#2-loss-scaling-underflow-prevention">#</a></h3>
+<p>To prevent gradient underflow, we scale the loss by a factor $S$ (typically a large power of 2, like $65,536$) before backpropagation.</p>
+<p>By the chain rule, scaling the loss scales all subsequent gradients by the same factor $S$:
+</p>
+$$\nabla_{W} (S \cdot L) = S \cdot \nabla_{W} L$$<p>This mathematically shifts the entire gradient distribution to the right, pushing the small gradients out of the underflow zone and into the representable range of FP16.</p>
+<p>After backpropagation, but <em>before</em> the optimizer updates the weights, we must <strong>unscale</strong> the gradients by dividing them by $S$:
+</p>
+$$\text{Updated Gradients} = \frac{\text{Scaled Gradients}}{S}$$<p>This ensures the weights are updated using the correct, original gradient values.</p>
+<h3 id="3-dynamic-loss-scaling">3. Dynamic Loss Scaling<a hidden class="anchor" aria-hidden="true" href="#3-dynamic-loss-scaling">#</a></h3>
+<p>Using a static scaling factor $S$ can be problematic: too small, and gradients still underflow; too large, and gradients overflow (becoming <code>Inf</code> or <code>NaN</code>), ruining the weights.</p>
+<p><strong>Dynamic Loss Scaling</strong> solves this by adjusting the scale factor automatically:</p>
+<ol>
+<li>Start with a very high scale factor (e.g., $2^{16}$).</li>
+<li>Perform backpropagation and check if any gradient contains <code>Inf</code> or <code>NaN</code>.</li>
+<li>If an overflow is detected:
+<ul>
+<li>Discard the entire step (do not update weights).</li>
+<li>Decrease the scale factor (e.g., divide by 2).</li>
+</ul>
+</li>
+<li>If no overflow is detected:
+<ul>
+<li>Accept the step and update the weights.</li>
+<li>If no overflows occur for a consecutive number of steps (e.g., 2000 steps), increase the scale factor (e.g., multiply by 2) to keep it as large as possible.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="4-the-mixed-precision-training-workflow">4. The Mixed Precision Training Workflow<a hidden class="anchor" aria-hidden="true" href="#4-the-mixed-precision-training-workflow">#</a></h2>
+<p>Putting it all together, here is how a single training iteration flows under mixed precision:</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
+    participant MW as &#34;FP32 Master Weights&#34;
+    participant W16 as &#34;FP16 Weights&#34;
+    participant FP as &#34;Forward Pass (FP16)&#34;
+    participant Loss as &#34;Loss Computation (FP32)&#34;
+    participant BP as &#34;Backward Pass (FP16)&#34;
+    participant Optim as &#34;Optimizer (FP32)&#34;
+
+    MW-&gt;&gt;W16: 1. Cast weights to FP16
+    W16-&gt;&gt;FP: 2. Input data (FP16)
+    FP-&gt;&gt;Loss: 3. Compute activations and output
+    Note over Loss: 4. Compute Loss in FP32
+    Loss-&gt;&gt;Loss: 5. Scale Loss (Loss * Scale)
+    Loss-&gt;&gt;BP: 6. Run Backprop in FP16
+    BP-&gt;&gt;Optim: 7. Output scaled gradients (FP16)
+    Note over Optim: 8. Cast gradients to FP32
+    Note over Optim: 9. Unscale gradients (Grads / Scale)
+    Note over Optim: 10. Check for NaN/Inf
+    Optim-&gt;&gt;MW: 11. Update Master Weights (FP32)
+</code></pre><hr>
+<h2 id="5-implementing-mixed-precision-in-pytorch">5. Implementing Mixed Precision in PyTorch<a hidden class="anchor" aria-hidden="true" href="#5-implementing-mixed-precision-in-pytorch">#</a></h2>
+<p>In PyTorch, implementing mixed precision training is extremely easy thanks to the <code>torch.cuda.amp</code> (Automatic Mixed Precision) package. It provides two main utilities:</p>
+<ol>
+<li><code>torch.cuda.amp.autocast</code>: Automatically handles casting tensors to FP16 for operations that benefit from it (like matrix multiplications and convolutions) while keeping numerical-critical operations (like softmax, layer normalization, and loss functions) in FP32.</li>
+<li><code>torch.cuda.amp.GradScaler</code>: Manages dynamic loss scaling.</li>
+</ol>
+<p>Let&rsquo;s compare a standard training loop with a mixed precision training loop.</p>
+<h3 id="standard-training-loop-fp32">Standard Training Loop (FP32)<a hidden class="anchor" aria-hidden="true" href="#standard-training-loop-fp32">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> MyModel()<span style="color:#f92672">.</span>cuda()
+</span></span><span style="display:flex;"><span>optimizer <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>optim<span style="color:#f92672">.</span>Adam(model<span style="color:#f92672">.</span>parameters(), lr<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-3</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> inputs, targets <span style="color:#f92672">in</span> dataloader:
+</span></span><span style="display:flex;"><span>    inputs, targets <span style="color:#f92672">=</span> inputs<span style="color:#f92672">.</span>cuda(), targets<span style="color:#f92672">.</span>cuda()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#f92672">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Forward pass</span>
+</span></span><span style="display:flex;"><span>    outputs <span style="color:#f92672">=</span> model(inputs)
+</span></span><span style="display:flex;"><span>    loss <span style="color:#f92672">=</span> criterion(outputs, targets)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Backward pass</span>
+</span></span><span style="display:flex;"><span>    loss<span style="color:#f92672">.</span>backward()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Optimizer step</span>
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#f92672">.</span>step()
+</span></span></code></pre></div><h3 id="mixed-precision-training-loop-fp16--amp">Mixed Precision Training Loop (FP16 + AMP)<a hidden class="anchor" aria-hidden="true" href="#mixed-precision-training-loop-fp16--amp">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 1. Import autocast and GradScaler</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> torch.cuda.amp <span style="color:#f92672">import</span> autocast, GradScaler
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> MyModel()<span style="color:#f92672">.</span>cuda()
+</span></span><span style="display:flex;"><span>optimizer <span style="color:#f92672">=</span> torch<span style="color:#f92672">.</span>optim<span style="color:#f92672">.</span>Adam(model<span style="color:#f92672">.</span>parameters(), lr<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-3</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2. Initialize the gradient scaler</span>
+</span></span><span style="display:flex;"><span>scaler <span style="color:#f92672">=</span> GradScaler()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> inputs, targets <span style="color:#f92672">in</span> dataloader:
+</span></span><span style="display:flex;"><span>    inputs, targets <span style="color:#f92672">=</span> inputs<span style="color:#f92672">.</span>cuda(), targets<span style="color:#f92672">.</span>cuda()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#f92672">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. Use autocast context manager for forward pass</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> autocast():
+</span></span><span style="display:flex;"><span>        outputs <span style="color:#f92672">=</span> model(inputs)
+</span></span><span style="display:flex;"><span>        loss <span style="color:#f92672">=</span> criterion(outputs, targets)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4. Scale the loss and run backward pass</span>
+</span></span><span style="display:flex;"><span>    scaler<span style="color:#f92672">.</span>scale(loss)<span style="color:#f92672">.</span>backward()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 5. Step the optimizer through the scaler</span>
+</span></span><span style="display:flex;"><span>    scaler<span style="color:#f92672">.</span>step(optimizer)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 6. Update the scale factor for the next iteration</span>
+</span></span><span style="display:flex;"><span>    scaler<span style="color:#f92672">.</span>update()
+</span></span></code></pre></div><h3 id="what-does-the-gradscaler-do-in-the-loop">What does the <code>GradScaler</code> do in the loop?<a hidden class="anchor" aria-hidden="true" href="#what-does-the-gradscaler-do-in-the-loop">#</a></h3>
+<ul>
+<li><code>scaler.scale(loss)</code> multiplies the loss by the current scale factor.</li>
+<li><code>scaler.scale(loss).backward()</code> computes the scaled gradients.</li>
+<li><code>scaler.step(optimizer)</code> first unscales the gradients (<code>gradients / scale</code>). If the unscaled gradients do not contain <code>NaN</code> or <code>Inf</code>, it executes <code>optimizer.step()</code>. If they do contain invalid numbers, the step is skipped.</li>
+<li><code>scaler.update()</code> adjusts the scale factor based on whether overflows were detected in the step.</li>
+</ul>
+<hr>
+<h2 id="6-fp16-vs-bf16-which-should-you-use">6. FP16 vs. BF16: Which Should You Use?<a hidden class="anchor" aria-hidden="true" href="#6-fp16-vs-bf16-which-should-you-use">#</a></h2>
+<p>With modern GPUs (NVIDIA Ampere architecture and newer, such as the RTX 30/40 series, A100, and H100), <strong>BF16</strong> has become the preferred choice over FP16.</p>
+<p>Here is why:</p>
+<ul>
+<li><strong>No Loss Scaling Required</strong>: Because BF16 has the same dynamic range as FP32, it does not suffer from gradient underflow. You can completely omit the <code>GradScaler</code> in PyTorch!</li>
+<li><strong>Simpler Implementation</strong>: In PyTorch, you simply set the dtype of <code>autocast</code> to <code>torch.bfloat16</code> and train without a scaler:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Training with BF16 (No GradScaler needed!)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> inputs, targets <span style="color:#f92672">in</span> dataloader:
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#f92672">.</span>zero_grad()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> autocast(dtype<span style="color:#f92672">=</span>torch<span style="color:#f92672">.</span>bfloat16):
+</span></span><span style="display:flex;"><span>        outputs <span style="color:#f92672">=</span> model(inputs)
+</span></span><span style="display:flex;"><span>        loss <span style="color:#f92672">=</span> criterion(outputs, targets)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    loss<span style="color:#f92672">.</span>backward()
+</span></span><span style="display:flex;"><span>    optimizer<span style="color:#f92672">.</span>step()
+</span></span></code></pre></div><h3 id="the-selection-rule-of-thumb">The Selection Rule of Thumb<a hidden class="anchor" aria-hidden="true" href="#the-selection-rule-of-thumb">#</a></h3>
+<ul>
+<li><strong>Use BF16</strong> if you are training on an NVIDIA Ampere or Hopper GPU (RTX 30xx/40xx, A100, H100) or Google TPUs. It is faster, more stable, and easier to write.</li>
+<li><strong>Use FP16 with Loss Scaling</strong> if you are training on older GPUs (NVIDIA Volta or Turing architecture, like the V100, T4, or RTX 20xx series). These cards do not have hardware support for BF16, so using it will cause PyTorch to fall back to CPU emulation, making training extremely slow.</li>
+</ul>
+<hr>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>Mixed precision training is one of the most accessible and impactful optimizations in modern deep learning. By strategically combining 16-bit float formats (FP16/BF16) for compute-heavy operations and 32-bit float formats (FP32) for precision-critical operations, you can:</p>
+<ul>
+<li>Cut your GPU memory usage in half, allowing for <strong>larger batch sizes</strong> or <strong>larger models</strong>.</li>
+<li>Speed up training loops by <strong>2x to 3x</strong> on hardware with Tensor Cores.</li>
+<li>Maintain the same convergence behavior and model accuracy.</li>
+</ul>
+<p>If you are training on modern hardware, try switching your training loop to BF16 today. It requires changing just a single line of code and will instantly unlock the full power of your GPU.</p>
+<hr>
+<p><em>This post is part of the <a href="/series/ai-guides/">AI Guides series</a>. Check out the <a href="/posts/beginners-guide-to-llm-quantization/">Beginner&rsquo;s Guide to LLM Quantization</a> and <a href="/posts/understanding-lora-fine-tuning/">Simple Guide to LoRA</a> for more guides on deep learning optimization.</em></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://pranavburadkar.github.io/tags/ai/">AI</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/deep-learning/">Deep Learning</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/pytorch/">PyTorch</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/optimization/">Optimization</a></li>
+      <li><a href="https://pranavburadkar.github.io/tags/mixed-precision/">Mixed Precision</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://pranavburadkar.github.io/">Pranav Buradkar</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
